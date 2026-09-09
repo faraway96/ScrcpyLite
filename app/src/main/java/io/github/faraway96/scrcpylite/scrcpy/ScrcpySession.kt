@@ -68,7 +68,7 @@ class ScrcpySession(
 
     /** 启动服务器 (exec 通道保持打开, 用于读取日志) */
     fun startServer() {
-        val scid = java.util.Random.nextInt(1, 0x7FFFFFFF)
+        val scid = kotlin.random.Random.nextInt(1, 0x7FFFFFFF)
         scidHex = String.format("%08x", scid)
         val args = buildString {
             append("CLASSPATH=$SERVER_PATH app_process / com.genymobile.scrcpy.Server $SERVER_VERSION")

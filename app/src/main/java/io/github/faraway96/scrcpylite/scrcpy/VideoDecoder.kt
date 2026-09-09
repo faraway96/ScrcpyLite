@@ -69,8 +69,8 @@ class VideoDecoder(
                     ((b[off + 2].toInt() and 0xFF) shl 8) or (b[off + 3].toInt() and 0xFF)
 
                 val ptsAndFlags = be64(header)
-                val pts = ptsAndFlags and PACKET_FLAG_CONFIG.inv() and PACKET_FLAG_KEY_FRAME.inv()
-                val isConfig = (ptsAndFlags and PACKET_FLAG_CONFIG) != 0L
+                val pts = ptsAndFlags and ScrcpySession.PACKET_FLAG_CONFIG.inv() and ScrcpySession.PACKET_FLAG_KEY_FRAME.inv()
+                val isConfig = (ptsAndFlags and ScrcpySession.PACKET_FLAG_CONFIG) != 0L
                 val len = be32(header, 8)
                 if (len <= 0 || len > 8 * 1024 * 1024) throw java.io.IOException("非法帧长度: $len")
                 val payload = readFully(len)
@@ -117,10 +117,8 @@ class VideoDecoder(
                 when {
                     idx >= 0 -> {
                         cc.releaseOutputBuffer(idx, true)
-                        // 从输出格式捕获尺寸变化 (旋转)
-                        // info.presentationTimeUs 已由 release 使用
                     }
-                    MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
+                    idx == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
                         val f = cc.outputFormat
                         val w = f.getInteger(MediaFormat.KEY_WIDTH)
                         val h = f.getInteger(MediaFormat.KEY_HEIGHT)
