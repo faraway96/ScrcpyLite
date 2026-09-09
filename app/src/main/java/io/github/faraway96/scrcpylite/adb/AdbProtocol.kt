@@ -53,8 +53,8 @@ class AdbMessage(
             val arg1 = u32(8)
             val dataLen = u32(12)
             val crc = u32(16).toLong() and 0xFFFFFFFFL
-            val tail = String(head, 20, 4, Charsets.US_ASCII)
-            if (tail != cmd) throw IOException("ADB 帧损坏: magic mismatch $cmd != $tail")
+            // 帧尾 magic = cmd XOR 0xFFFFFFFF (adb 协议完整性校验)
+            if (u32(20) != u32(0).inv()) throw IOException("ADB 帧损坏: magic 校验失败 $cmd")
             if (dataLen < 0 || dataLen > 16 * 1024 * 1024) throw IOException("ADB 帧长度异常: $dataLen")
             val data = if (dataLen > 0) ByteArray(dataLen).also { dis.readFully(it) } else ByteArray(0)
             if (AdbProtocol.checksum(data) != crc) throw IOException("ADB 帧校验和不匹配")
@@ -76,7 +76,11 @@ class AdbMessage(
         put32(8, arg1)
         put32(12, data.size)
         put32(16, AdbProtocol.checksum(data).toInt())
-        cmd.toByteArray(Charsets.US_ASCII).copyInto(head, 20)
+        // magic = cmd XOR 0xFFFFFFFF (帧头第 0-3 字节即 cmd 的 LE 值)
+        put32(20, ((head[0].toInt() and 0xFF) or
+                  ((head[1].toInt() and 0xFF) shl 8) or
+                  ((head[2].toInt() and 0xFF) shl 16) or
+                  ((head[3].toInt() and 0xFF) shl 24)).inv())
         out.write(head)
         if (data.isNotEmpty()) out.write(data)
         out.flush()
