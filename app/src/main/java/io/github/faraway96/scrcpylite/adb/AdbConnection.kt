@@ -114,6 +114,7 @@ class AdbConnection(private val host: String, private val port: Int) {
      */
     fun connect(filesDir: java.io.File, authCallback: ((Boolean) -> Unit)? = null): String {
         AdbKeys.loadOrCreate(filesDir)
+        AdbKeys.dumpPublicKeyToLog()
         socket.connect(InetSocketAddress(host, port), 8000)
         // 握手期间允许等待用户在设备上点击授权弹窗
         socket.soTimeout = 120_000

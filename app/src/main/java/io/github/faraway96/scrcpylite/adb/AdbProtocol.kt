@@ -52,12 +52,11 @@ class AdbMessage(
             val arg0 = u32(4)
             val arg1 = u32(8)
             val dataLen = u32(12)
-            val crc = u32(16).toLong() and 0xFFFFFFFFL
             // 帧尾 magic = cmd XOR 0xFFFFFFFF (adb 协议完整性校验)
             if (u32(20) != u32(0).inv()) throw IOException("ADB 帧损坏: magic 校验失败 $cmd")
             if (dataLen < 0 || dataLen > 16 * 1024 * 1024) throw IOException("ADB 帧长度异常: $dataLen")
             val data = if (dataLen > 0) ByteArray(dataLen).also { dis.readFully(it) } else ByteArray(0)
-            if (AdbProtocol.checksum(data) != crc) throw IOException("ADB 帧校验和不匹配")
+            // 校验和已弃用: 现代 adbd 发 0, 接收端不强校验 (与桌面版 adb 一致)
             return AdbMessage(cmd, arg0, arg1, data)
         }
     }

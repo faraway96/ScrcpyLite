@@ -50,6 +50,15 @@ object AdbKeys {
         return s.sign()
     }
 
+    /** 诊断用: 把 android_pubkey 格式的 base64 写入 logcat (可手动加入受控端 adb_keys) */
+    fun dumpPublicKeyToLog() {
+        try {
+            val payload = publicKeyPayload() // base64 + '\0'
+            val b64 = String(payload, Charsets.US_ASCII).trim('\u0000')
+            android.util.Log.i("ScrcpyLite", "ADB_PUBKEY:$b64")
+        } catch (_: Exception) {}
+    }
+
     /**
      * 编码为 adb 认证使用的公钥格式 (android_pubkey):
      * struct RSAPublicKey { u32 len(words); u32 n0inv; u8 n[len*4]; u8 rr[len*4]; u32 exponent; } 全小端
