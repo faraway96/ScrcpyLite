@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ScrcpyLite</string>
+    <string name="target_address">被控设备地址 (IP:端口)</string>
+    <string name="mirror_params">镜像参数 (最大边 / 码率 Mbps / 帧率)</string>
+    <string name="max_size_hint">1600</string>
+    <string name="bitrate_hint">4</string>
+    <string name="fps_hint">30</string>
+    <string name="connect">连接并投屏</string>
+    <string name="status_idle">就绪</string>
+    <string name="btn_back">返回</string>
+    <string name="btn_home">桌面</string>
+    <string name="btn_recent">多任务</string>
+    <string name="btn_rotate">旋转</string>
+    <string name="btn_exit">退出</string>
+</resources>
