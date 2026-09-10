@@ -82,7 +82,6 @@ class ScrcpySession(
             append(" video_bit_rate=").append(params.videoBitRate)
             append(" max_fps=").append(params.maxFps)
             append(" cleanup=false")
-            append(" socket_name=").append("${SOCKET_PREFIX}_${scidHex}")
         }
         log("启动 scrcpy-server...")
         execStream = conn.open("exec:$args")
@@ -111,7 +110,7 @@ class ScrcpySession(
      * 顺序: 第 1 条 = video (dummy byte + 64B 设备名 + 12B codec 元数据), 第 2 条 = control。
      */
     fun openSockets() {
-        val socketName = "$SOCKET_PREFIX _$scidHex".replace(" ", "_")
+        val socketName = "${SOCKET_PREFIX}_${scidHex}"
         log("连接 $socketName (等待服务器就绪)...")
 
         val deadline = System.currentTimeMillis() + 15_000
