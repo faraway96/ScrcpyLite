@@ -82,6 +82,7 @@ class ScrcpySession(
             append(" video_bit_rate=").append(params.videoBitRate)
             append(" max_fps=").append(params.maxFps)
             append(" cleanup=false")
+            append(" socket_name=").append("${SOCKET_PREFIX}_${scidHex}")
         }
         log("启动 scrcpy-server...")
         execStream = conn.open("exec:$args")
