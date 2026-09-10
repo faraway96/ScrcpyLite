@@ -115,6 +115,9 @@ class ScrcpySession(
 
         val deadline = System.currentTimeMillis() + 15_000
         videoStream = tryOpenWithRetry(socketName, deadline, "video")
+        // 关键: 服务端在 video accept 后会阻塞等待 control accept, 之后才发送设备元数据。
+        // 必须先开满两条流, 再读元数据, 否则互相等待死锁。
+        controlStream = tryOpenWithRetry(socketName, deadline, "control")
         // video socket: dummy byte + 设备名(64B) + codec 元数据(12B)
         val dummy = readWithTimeout(videoStream, 1, 8000)
         if (dummy.size < 1) throw IOException("读取 dummy byte 失败\n${logTail()}")
@@ -132,8 +135,6 @@ class ScrcpySession(
         videoWidth = be32(codecMeta, 4)
         videoHeight = be32(codecMeta, 8)
         log("设备: $deviceName 视频: ${videoWidth}x${videoHeight} codecId=$codecId")
-
-        controlStream = tryOpenWithRetry(socketName, deadline, "control")
     }
 
     private fun tryOpenWithRetry(socketName: String, deadline: Long, what: String): io.github.faraway96.scrcpylite.adb.AdbStream {
